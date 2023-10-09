@@ -112,11 +112,12 @@ input {
 
 .form-btn {
   display: flex;
-  justify-content: end;
+  justify-content: flex-end;
   gap: 10px;
 }
 
-.form-btn button {
+.form-btn button,
+.btn-close {
   padding: 10px 20px;
   border-radius: 4px;
   border: none;
@@ -132,4 +133,10 @@ button:hover {
 .form-btn button:last-child {
   background-color: #6a9c89;
   color: #fff;
+}
+
+.btn-close {
+  position: absolute;
+  bottom: 40px;
+  right: 130px;
 }

@@ -25,9 +25,9 @@ const courseList = [
 ];
 
 // Creating a reausable Button component, because I need to use is in this particular case for 3 times it would be better to take a children prop and adjust it to my need to avoid repetittion
-function Button({ children, onHandleAddForm, classBtn = "" }) {
+function Button({ children, onClick, classBtn = "" }) {
   return (
-    <button className={classBtn} onClick={onHandleAddForm}>
+    <button className={classBtn} onClick={onClick}>
       {children}
     </button>
   );
@@ -69,7 +69,7 @@ export default function App() {
       <h1>Courses tracker</h1>
       <div className="container">
         {/* Button component is inside Aside bar component, so I need to pass it down the component tree to get access to this function */}
-        <AsideBar onHandleAddForm={handleAddForm} onCountHours={countHours} />
+        <AsideBar onClick={handleAddForm} onCountHours={countHours} />
 
         <Courses courses={courses} />
 
@@ -85,31 +85,23 @@ export default function App() {
   );
 }
 
-function AsideBar({ onHandleAddForm, onCountHours, onFormIsOpen }) {
+function AsideBar({ onClick, onCountHours, onFormIsOpen }) {
   const coursesHoursCount = onCountHours();
 
   return (
     <div className="aside">
       {/* Passing the onHandleAddForm prop to set form state */}
-      <Button
-        onHandleAddForm={onHandleAddForm}
-        onFormIsOpen={onFormIsOpen}
-        classBtn="add-btn"
-      >
+      <Button onClick={onClick} onFormIsOpen={onFormIsOpen} classBtn="add-btn">
         Add+
       </Button>
       <div>
         <ul>
           {Object.keys(coursesHoursCount).map((course) => (
             <li key={course}>
-              {course} <span>Hours total: {coursesHoursCount[course]}h</span>
+              <strong>{course}</strong>
+              <br></br> <span>Hours total: {coursesHoursCount[course]}h</span>
             </li>
           ))}
-          {/* {Object.keys(mainFocusCounts).map((mainFocus) => (
-            <li key={mainFocus}>
-              {mainFocus} {mainFocusCounts[mainFocus]}
-            </li>
-          ))} */}
         </ul>
       </div>
     </div>
@@ -140,15 +132,14 @@ function AddForm({ onHandleCourseList, onFormIsOpen }) {
   // Get states values from the form
   const [name, setName] = useState("");
   const [instructor, setInstructor] = useState("");
-  const [courseHours, setCourseHours] = useState(0);
+  const [courseHours, setCourseHours] = useState("");
   const [mainTopic, setMainTopic] = useState("");
 
   let id = crypto.randomUUID();
 
-  if (!Number.isInteger(courseHours)) return setCourseHours(0);
-
   function handleSubmit(e) {
     e.preventDefault();
+
     if (!name || !instructor || !courseHours || !mainTopic) return;
     // Get info from the form submit
     const addNewCourse = {
@@ -156,7 +147,7 @@ function AddForm({ onHandleCourseList, onFormIsOpen }) {
       name,
       instructor,
       hours: courseHours,
-      mainFocus: mainTopic,
+      mainFocus: mainTopic.toLowerCase(),
     };
     // handle course list, add a course to the beginning of the array of objects
     onHandleCourseList(addNewCourse);
@@ -165,10 +156,13 @@ function AddForm({ onHandleCourseList, onFormIsOpen }) {
     onFormIsOpen(false);
   }
 
+  function handleCloseForm() {
+    onFormIsOpen(() => false);
+  }
   return (
     <div className="add-form">
       <h3>Add a new course</h3>
-      <form type="submit" onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
         <label>Name of the course</label>
         <input
           type="text"
@@ -203,10 +197,12 @@ function AddForm({ onHandleCourseList, onFormIsOpen }) {
         ></input>
 
         <div className="form-btn">
-          <Button>Close</Button>
-          <Button>Add</Button>
+          <button type="submit">Add</button>
         </div>
       </form>
+      <Button classBtn="btn-close" onClick={handleCloseForm}>
+        Close
+      </Button>
     </div>
   );
 }
